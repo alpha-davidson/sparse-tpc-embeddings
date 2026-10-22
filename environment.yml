@@ -1,0 +1,17 @@
+# Conda environment used to test this repository (Linux, NVIDIA GPU, CUDA 11.1).
+# MinkowskiEngine is compiled afterwards; see the README.
+name: sparse-tpc
+channels:
+  - pytorch
+  - conda-forge
+dependencies:
+  - python=3.8
+  - pytorch=1.9.0
+  - cudatoolkit=11.1
+  - numpy=1.21.6
+  - scipy=1.10.1
+  - scikit-learn=1.3.0
+  - matplotlib=3.7.2
+  - pandas=1.5.3
+  - openblas-devel
+  - pip

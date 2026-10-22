@@ -1,0 +1,55 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the paper below."
+title: "sparse-tpc-embeddings: code for Sparse Methods for Vector Embeddings of TPC Data"
+type: software
+version: 1.0.0
+license: MIT
+repository-code: "https://github.com/alpha-davidson/sparse-tpc-embeddings"
+keywords:
+  - time projection chamber
+  - sparse convolution
+  - Minkowski Engine
+  - embeddings
+  - nuclear physics
+authors: &authors
+  - family-names: Wheeler
+    given-names: Tyler
+    affiliation: Michigan State University
+  - family-names: Kuchera
+    given-names: Michelle P.
+    affiliation: Davidson College
+  - family-names: Ramanujan
+    given-names: Raghuram
+    affiliation: Davidson College
+  - family-names: Krupp
+    given-names: Ryan
+    affiliation: Michigan State University
+  - family-names: Wrede
+    given-names: Chris
+    affiliation: Michigan State University
+  - family-names: Ravishankar
+    given-names: Saiprasad
+    affiliation: Michigan State University
+  - family-names: Cross
+    given-names: Connor L.
+    affiliation: Davidson College
+  - family-names: Heung
+    given-names: Hoi Yan Ian
+    affiliation: Davidson College
+  - family-names: Jones
+    given-names: Andrew J.
+    affiliation: Davidson College
+  - family-names: Votaw
+    given-names: Benjamin
+    affiliation: Davidson College
+preferred-citation:
+  type: conference-paper
+  title: "Sparse Methods for Vector Embeddings of TPC Data"
+  authors: *authors
+  year: 2025
+  collection-title: "Machine Learning and the Physical Sciences Workshop, NeurIPS 2025"
+  doi: "10.48550/arXiv.2511.11221"
+  identifiers:
+    - type: other
+      value: "arXiv:2511.11221"
+  url: "https://arxiv.org/abs/2511.11221"

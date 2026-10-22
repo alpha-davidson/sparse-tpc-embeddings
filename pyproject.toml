@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sparse-tpc"
+version = "1.0.0"
+description = "Sparse ResNet embeddings of time projection chamber data (arXiv:2511.11221)"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+
+[tool.setuptools]
+packages = ["sparse_tpc"]
