@@ -2,11 +2,12 @@
 # MinkowskiEngine is compiled afterwards; see the README.
 name: sparse-tpc
 channels:
+  - anaconda
   - pytorch
-  - conda-forge
+  - nvidia
 dependencies:
   - python=3.8
-  - pytorch=1.9.0
+  - pytorch=1.9.0=py3.8_cuda11.1_cudnn8.0.5_0
   - cudatoolkit=11.1
   - numpy=1.21.6
   - scipy=1.10.1
@@ -14,4 +15,7 @@ dependencies:
   - matplotlib=3.7.2
   - pandas=1.5.3
   - openblas-devel
+  - ninja
   - pip
+  - pip:
+      - setuptools==66.0.0

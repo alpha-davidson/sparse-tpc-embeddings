@@ -33,9 +33,8 @@ cd sparse-tpc-embeddings
 conda env create -f environment.yml
 conda activate sparse-tpc
 # Build the Minkowski Engine against the environment's PyTorch. This needs a
-# CUDA 11.1 toolkit and a compatible GCC (we used GCC 10.2) on the build machine.
-pip install git+https://github.com/NVIDIA/MinkowskiEngine.git@v0.5.4 --no-deps --no-build-isolation \
-    --install-option="--blas=openblas"
+# CUDA 11.1 toolkit (nvcc) and a compatible GCC (we used GCC 10.2) on the build machine.
+pip install MinkowskiEngine==0.5.4 --no-deps --no-build-isolation --config-settings="--blas=openblas"
 pip install -e . --no-deps
 python -c "import torch, MinkowskiEngine as ME; print(torch.cuda.is_available(), ME.__version__)"
 ```
