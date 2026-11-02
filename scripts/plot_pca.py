@@ -72,7 +72,8 @@ def main():
     order = [labels.index(name) for name in class_names]
     fig.legend([handles[i] for i in order], [labels[i] for i in order],
                loc="upper center", ncol=len(order), frameon=False, markerscale=1.8)
-    fig.savefig(args.out, dpi=300, bbox_inches="tight", facecolor="white")
+    # The tight bounding box ignores 3D axis labels, so pad it to keep "PC3" in view.
+    fig.savefig(args.out, dpi=300, bbox_inches="tight", pad_inches=0.35, facecolor="white")
     print(f"saved {args.out}")
 
 
