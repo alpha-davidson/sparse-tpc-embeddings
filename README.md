@@ -1,5 +1,7 @@
 # Sparse Methods for Vector Embeddings of TPC Data
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23889819.svg)](https://doi.org/10.5281/zenodo.23889819)
+
 Code for the paper
 
 > T. Wheeler, M. P. Kuchera, R. Ramanujan, R. Krupp, C. Wrede, S. Ravishankar, C. L. Cross, H. Y. I. Heung, A. J. Jones, and B. Votaw,
@@ -128,11 +130,13 @@ The AT-TPC results and the naive baselines match the paper. On GADGET II, both m
 
 This work was supported by the U.S. Department of Energy, Office of Science, under award No. DE-SC0024587 and the National Science Foundation Office of Advanced Cyberinfrastructure award No. [OAC-2311263](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2311263).
 
-The code was written by Ryan Krupp and Tyler Wheeler (pretraining, embeddings and probes on GADGET II data) and Michelle P. Kuchera (AT-TPC conversion, probes and figures). It builds on the ALPhA group's FRIBMink sparse-convolution code, written by @lisieland, @cocross1, @rramanujan, @mpkuchera, @bevotaw and @rjkmni, and on the ResNet example in the [Minkowski Engine](https://github.com/NVIDIA/MinkowskiEngine) (Choy et al., 2019).
+The code was written by Ryan Krupp and Tyler Wheeler (pretraining, embeddings and probes on GADGET II data) and Michelle P. Kuchera (AT-TPC conversion, probes and figures). It builds on the ALPhA group's FRIBMink sparse-convolution code, written by Liam Sieland, Connor L. Cross, Raghuram Ramanujan, Michelle P. Kuchera, Benjamin Votaw and Ryan Krupp, and on the ResNet example in the [Minkowski Engine](https://github.com/NVIDIA/MinkowskiEngine) (Choy et al., 2019).
 
 ## Citation
 
-If you use this code, please cite the paper:
+If you use this code, please cite the paper. The code itself is archived on Zenodo as [doi:10.5281/zenodo.23889819](https://doi.org/10.5281/zenodo.23889819).
+
+The paper:
 
 ```bibtex
 @inproceedings{wheeler2025sparse,
