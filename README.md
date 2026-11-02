@@ -106,11 +106,35 @@ python scripts/plot_pca.py runs/study --eval Mg21-3 --fold 3 --out fig6.pdf
 * ResNet14 only: gradient clipping at norm 1.0, and a random translation of each training event by up to 0.9 mm per axis.
 * Fold *i* uses split seed 28 and training seed 28 + *i*.
 
-On one GPU, the ²⁰Mg-trained ResNet14 takes about 6 hours. The other five encoders take 15–60 minutes each.
+On one GPU, the ²⁰Mg-trained ResNet14 takes about 7 hours and the ²⁰Mg-trained PointNet-style encoder about 2 hours. The other four encoders take 10–45 minutes each.
 
 ### Expected results
 
-RESULTS_TBD
+A full rerun of this code on the Davidson College cluster (one NVIDIA GPU per encoder) gives:
+
+* **Random encoders and the naive baseline:** the paper's numbers exactly, in every table, since they depend only on the seeds.
+* **Trained encoders:** means within 0.01 of the paper's for 12 of the 16 encoder–task pairs, and within 0.03 for all of them. The table below compares accuracies (mean ± standard deviation over the five folds); `make_tables.py --compare` also prints macro-F1.
+
+| Table | Encoder | Task | Linear acc. | Paper | RBF acc. | Paper |
+| --- | --- | --- | --- | --- | --- | --- |
+| 3 | ²⁰Mg-trained ResNet | Mg20-3 | 0.9795 ± 0.0045 | 0.9782 | 0.9803 ± 0.0038 | 0.9803 |
+| 3 | ²⁰Mg-trained PointNet | Mg20-3 | 0.9999 ± 0.0001 | 0.9999 | 0.9999 ± 0.0001 | 0.9999 |
+| 3 | ¹⁶O-trained ResNet | O16-3 | 0.7128 ± 0.0362 | 0.7010 | 0.7905 ± 0.0118 | 0.7819 |
+| 3 | ¹⁶O-trained PointNet | O16-3 | 0.8206 ± 0.0117 | 0.8352 | 0.8820 ± 0.0071 | 0.8885 |
+| 4 | ²⁰Mg-trained ResNet | Mg21-3 | 0.9461 ± 0.0089 | 0.9506 | 0.9598 ± 0.0109 | 0.9622 |
+| 4 | ²⁰Mg-trained PointNet | Mg21-3 | 0.9972 ± 0.0025 | 0.9967 | 0.9985 ± 0.0006 | 0.9985 |
+| 4 | ¹⁶O-trained ResNet | B10-2 | 0.6560 ± 0.0098 | 0.6267 | 0.7010 ± 0.0132 | 0.6891 |
+| 4 | ¹⁶O-trained PointNet | B10-2 | 0.8981 ± 0.0087 | 0.8985 | 0.9532 ± 0.0044 | 0.9496 |
+| 5 | ²⁰Mg-trained ResNet | O16-3 | 0.7065 ± 0.0216 | 0.6955 | 0.7728 ± 0.0117 | 0.7817 |
+| 5 | ²⁰Mg-trained PointNet | O16-3 | 0.8163 ± 0.0094 | 0.8248 | 0.8691 ± 0.0097 | 0.8720 |
+| 5 | ²⁰Mg-trained ResNet | B10-2 | 0.6392 ± 0.0107 | 0.6426 | 0.6903 ± 0.0125 | 0.6885 |
+| 5 | ²⁰Mg-trained PointNet | B10-2 | 0.8907 ± 0.0143 | 0.8889 | 0.9342 ± 0.0134 | 0.9355 |
+| 5 | ¹⁶O-trained ResNet | Mg20-3 | 0.9433 ± 0.0170 | 0.9451 | 0.9816 ± 0.0049 | 0.9842 |
+| 5 | ¹⁶O-trained PointNet | Mg20-3 | 0.9992 ± 0.0004 | 0.9994 | 0.9997 ± 0.0002 | 0.9997 |
+| 5 | ¹⁶O-trained ResNet | Mg21-3 | 0.8822 ± 0.0256 | 0.8790 | 0.9426 ± 0.0127 | 0.9374 |
+| 5 | ¹⁶O-trained PointNet | Mg21-3 | 0.9923 ± 0.0028 | 0.9923 | 0.9980 ± 0.0021 | 0.9982 |
+
+The paper's conclusions hold in the rerun: the PointNet-style encoder beats ResNet14 on every task, a random PointNet-style encoder is already strong, and source-task training helps ResNet14 much more than the PointNet-style encoder.
 
 ### Notes
 
