@@ -1,29 +1,41 @@
-# Sparse Methods for Vector Embeddings of TPC Data
+# sparse-tpc-embeddings
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23889819.svg)](https://doi.org/10.5281/zenodo.23889819)
 
-Code for the paper
+Sparse ResNet and PointNet-style encoders for time projection chamber (TPC) events, built on [Minkowski Engine](https://github.com/NVIDIA/MinkowskiEngine) sparse tensors, with the probes used to test whether their embeddings carry over across tasks, experiments and detectors. This is the code for:
 
-> T. Wheeler, M. P. Kuchera, R. Ramanujan, R. Krupp, C. Wrede, S. Ravishankar, C. L. Cross, H. Y. I. Heung, A. J. Jones, and B. Votaw,
-> **Sparse Methods for Vector Embeddings of TPC Data**,
-> Machine Learning and the Physical Sciences Workshop, NeurIPS 2025.
-> [arXiv:2511.11221](https://arxiv.org/abs/2511.11221)
+> T. Wheeler, M. P. Kuchera, R. Ramanujan, W. Sieland, R. Krupp, Y. Ayyad, D. Bazin, C. L. Cross, H. Y. I. Heung, A. J. Jones, R. Mahajan, S. Ravishankar, P. Singh, B. Votaw, and C. Wrede,
+> **How Architecture and Training Affect TPC Representations Across Experiments**,
+> [arXiv:2608.21756](https://arxiv.org/abs/2608.21756) (2026).
 
-A sparse ResNet14 built with the [Minkowski Engine](https://github.com/NVIDIA/MinkowskiEngine) is pretrained to classify protons and alphas in GADGET II time projection chamber (TPC) events. Its penultimate-layer embeddings are then probed with a linear SVM and visualized with PCA. The probes use two tasks: a three-class GADGET II task, and track counting in a different detector, the Active-Target TPC (AT-TPC). A randomly initialized copy of the same network (ResNet_rand) serves as a baseline.
+The code for the earlier NeurIPS 2025 workshop paper, [Sparse Methods for Vector Embeddings of TPC Data](https://arxiv.org/abs/2511.11221) (arXiv:2511.11221), is release [v1.0.0](https://github.com/alpha-davidson/sparse-tpc-embeddings/tree/v1.0.0) ([doi:10.5281/zenodo.23889820](https://doi.org/10.5281/zenodo.23889820)). Check out that tag to reproduce the workshop paper:
+
+```bash
+git checkout v1.0.0
+```
+
+## Overview
+
+Each encoder maps a variable-length TPC event (hit positions and charges) to a 512-dimensional embedding:
+
+* **ResNet14**: a sparse convolutional ResNet over a 0.05 mm voxel grid.
+* **PointNet-style encoder**: a shared per-point MLP followed by global max pooling, implemented with Minkowski Engine sparse tensors so events keep their variable length.
+
+Each architecture is either trained on a simple source task (²⁰Mg proton vs. alpha, or ¹⁶O 0–2 vs. 3–5 tracks) or left randomly initialized. It is then frozen, and linear and RBF support vector machines (SVMs) are trained on its embeddings for downstream tasks. These tasks fall into three groups: within the same experiment (Table 3), in another experiment on the same detector (Table 4), and on the other detector (Table 5). Every encoder is trained five times with five-fold cross-validation.
 
 ## Contents
 
 | Path | Purpose | Paper |
 | --- | --- | --- |
-| `sparse_tpc/resnet.py` | Sparse ResNet14 (and ResNet50) with an `embed()` method | Table 1 |
-| `sparse_tpc/data.py` | Event loading, random translation, voxelization, batching | §2.1 |
-| `scripts/train.py` | Pretraining on GADGET II proton/alpha classification (ResNet_train) | §2.2, Table 2 |
-| `scripts/make_random_model.py` | Randomly initialized network (ResNet_rand) | §2.3 |
-| `scripts/prepare_attpc.py` | Converts labeled AT-TPC ¹⁶O + α events to the GADGET II format | §2.3 |
-| `scripts/extract_embeddings.py` | 512-dimensional embeddings after global max pooling | §2.3 |
-| `scripts/linear_probe.py` | Linear SVM probes and the naive baseline | Table 3 |
-| `scripts/plot_pca.py` | PCA plots | Figs. 2 and 3 |
-| `slurm/reproduce.sh` | Runs the whole pipeline as one Slurm job | |
+| `sparse_tpc/datasets.py` | Tasks and labels, five-fold splits, input scaling | §III.1, Table 2 |
+| `sparse_tpc/resnet.py`, `sparse_tpc/pointnet.py` | The two encoders | §III.2, Figs. 3–4 |
+| `sparse_tpc/encoders.py` | Turns events into network inputs for each architecture | §III.2 |
+| `sparse_tpc/training.py` | Source-task training | Appendix A, Table 6 |
+| `sparse_tpc/probes.py` | Embedding extraction, linear and RBF SVM probes, naive baseline | §III.3 |
+| `scripts/run_study.py` | Trains or initializes one encoder in five folds and probes all tasks | Tables 3–5 |
+| `scripts/make_tables.py` | Builds Tables 3–5 from the results, optionally next to the paper's values | Tables 3–5 |
+| `scripts/plot_pca.py` | PCA views of the embeddings | Figs. 5–6 |
+| `slurm/run_study.sh` | Runs all six encoders as a Slurm array job | |
 
 ## Installation
 
@@ -45,98 +57,92 @@ See the [Minkowski Engine installation notes](https://github.com/NVIDIA/Minkowsk
 
 ## Data
 
-The experimental data are not distributed with this repository. They come from:
+The data come from four FRIB experiments (paper Table 2):
 
-* **GADGET II** at FRIB, experiment e21072 (run 238). Events were labeled as protons or alphas by gating bands in range versus energy (overlap region excluded), using the [GADGET II analysis GUI](https://github.com/GADGET-group/gadget_data_analysis). The three-class probe set holds 212 events each of 800 keV protons, 1600 keV protons and 2 MeV alphas.
-* **AT-TPC**, a ¹⁶O + α experiment. Events were hand-labeled with their number of tracks.
+| Folder | Detector | Experiment | Tasks | Events |
+| --- | --- | --- | --- | --- |
+| `Mg20-3_filtered_full_variable` | GADGET II | E21072, ²⁰Mg β-delayed decays | `Mg20-2` (proton / alpha, source task), `Mg20-3` (770 keV p / 1596 keV p / 2153 keV α) | 34,579 |
+| `Mg21-3_filtered_full_variable` | GADGET II | E25058, ²¹Mg β-delayed decays | `Mg21-3` (1285 keV p / 1930 keV p / 2153 keV α) | 5,975 |
+| `O16-3_filtered_full_variable` | AT-TPC | E20020, ¹⁶O + α | `O16-2` (0–2 / 3–5 tracks, source task), `O16-3` (0–2 / 3 / 4–5 tracks) | 2,458 |
+| `B10-2_filtered_full_variable` | AT-TPC | E20009, ¹⁰B + d | `B10-2` (3 / 4 tracks) | 4,461 |
 
-Please contact the authors about access. Every dataset is a pickled NumPy object array with one row per event:
+Each folder holds one `<event number>.npy` file per event: an (N, 7) array with one row per hit and the columns x, y, z (mm), charge, event number, raw label (decay branch or number of tracks), and number of hits. Put the four folders in one directory and pass it as `--data-root` (or `DATA_DIR`).
 
-```python
-(points, label, event_id)   # points: (N, 4) float array with columns x, y, z [mm] and charge
-```
-
-`slurm/reproduce.sh` expects this layout:
-
-```
-$DATA_DIR/gadget/run_0238_filtered_labeled_{train,val,test}_bands.npy   # pretraining: label 0 = alpha, 1 = proton
-$DATA_DIR/gadget/gadget_3class.npy                                     # probe: 0 = 800 keV p, 1 = 1600 keV p, 2 = 2 MeV alpha
-$DATA_DIR/attpc/attpc_o16.npy                                           # probe: label = number of tracks
-```
-
-Create `attpc_o16.npy` from the zero-padded AT-TPC hit array and the track-count labels:
-
-```bash
-python scripts/prepare_attpc.py --events O16_w_event_keys.npy --labels O16_labels.csv --out $DATA_DIR/attpc/attpc_o16.npy
-```
+The processed data will be made publicly available when the paper is published, in accordance with the FRIB Data Management and Sharing Plan. Access to additional FRIB experimental data is subject to the applicable data-sharing policies and approval of the experiment co-spokespersons.
 
 ## Reproducing the paper
 
-Run everything as one job:
+Run all six encoders (ResNet and PointNet, each trained on ²⁰Mg, trained on ¹⁶O, or random) as one Slurm array job:
 
 ```bash
-DATA_DIR=/path/to/data sbatch slurm/reproduce.sh
+DATA_DIR=/path/to/data OUT=runs/study sbatch slurm/run_study.sh
 ```
 
-Or step by step:
+Or run them one at a time:
 
 ```bash
-# 1. Pretrain ResNet_train (Table 2 settings are the defaults) and make ResNet_rand
-python scripts/train.py --train $G/run_0238_filtered_labeled_train_bands.npy \
-    --val $G/run_0238_filtered_labeled_val_bands.npy --test $G/run_0238_filtered_labeled_test_bands.npy \
-    --out runs/pretrain
-python scripts/make_random_model.py --out runs/random/random.pt
-
-# 2. Embeddings for both probe datasets and both models
-python scripts/extract_embeddings.py --weights runs/pretrain/best.pt --data $G/gadget_3class.npy --out emb/gadget_train.npz
-python scripts/extract_embeddings.py --weights runs/random/random.pt --data $G/gadget_3class.npy --out emb/gadget_rand.npz
-python scripts/extract_embeddings.py --weights runs/pretrain/best.pt --data $DATA_DIR/attpc/attpc_o16.npy --out emb/attpc_train.npz
-python scripts/extract_embeddings.py --weights runs/random/random.pt --data $DATA_DIR/attpc/attpc_o16.npy --out emb/attpc_rand.npz
-
-# 3. Linear probes (Table 3); AT-TPC track counts are grouped as {0,1,2}, {3}, {4,5}
-python scripts/linear_probe.py ResNet_train=emb/gadget_train.npz ResNet_rand=emb/gadget_rand.npz
-python scripts/linear_probe.py ResNet_train=emb/attpc_train.npz ResNet_rand=emb/attpc_rand.npz --groups 0,1,2 3 4,5
-
-# 4. PCA figures
-python scripts/plot_pca.py gadget --rand emb/gadget_rand.npz --train emb/gadget_train.npz --out fig2_pca.pdf
-python scripts/plot_pca.py attpc --rand emb/attpc_rand.npz --train emb/attpc_train.npz --out fig3_attpc_pca.pdf
+for arch in resnet pointnet; do
+  for source in Mg20-2 O16-2 random; do
+    python scripts/run_study.py --arch $arch --source $source --data-root $DATA_DIR --out runs/study \
+        --save-embeddings O16-3 Mg21-3
+  done
+done
 ```
 
-The whole pipeline takes about 25 minutes on one NVIDIA RTX 2080 Ti (about 17 minutes on an RTX A6000). Nearly all of that time is pretraining.
+Then build the tables and figures:
+
+```bash
+python scripts/make_tables.py runs/study --compare     # Tables 3-5, with the paper's means alongside
+python scripts/plot_pca.py runs/study --eval O16-3 --fold 4 --out fig5.pdf
+python scripts/plot_pca.py runs/study --eval Mg21-3 --fold 3 --out fig6.pdf
+```
+
+`run_study.py` defaults to the paper's settings (Table 6):
+* AdamW with weight decay 10⁻⁴ and batch size 128.
+* `ReduceLROnPlateau` on the validation loss: factor 0.1, patience 10, relative threshold 10⁻³, minimum learning rate 5 × 10⁻⁸.
+* At most 200 epochs, with early stopping after 30 epochs without improvement. The checkpoint with the lowest validation loss is kept.
+* A weighted training sampler.
+* Initial learning rate 5 × 10⁻⁴, except 5 × 10⁻⁶ for the PointNet-style encoder trained on ²⁰Mg.
+* ResNet14 only: gradient clipping at norm 1.0, and a random translation of each training event by up to 0.9 mm per axis.
+* Fold *i* uses split seed 28 and training seed 28 + *i*.
+
+On one GPU, the ²⁰Mg-trained ResNet14 takes about 6 hours. The other five encoders take 15–60 minutes each.
 
 ### Expected results
 
-We reran the full pipeline with this code. The table compares the paper's Table 3 with the rerun, which used three pretraining seeds (`SEED=0,1,2`) and five probe splits per seed. Each entry gives the mean and, in brackets, the range of the per-seed means. Pretraining reached 0.994 test accuracy and macro F1 for all three seeds (paper: about 0.995 and 0.99).
+RESULTS_TBD
 
-| Probe | Metric | ResNet_train (paper) | ResNet_train (rerun) | ResNet_rand (paper) | ResNet_rand (rerun) | Naive (paper) | Naive (rerun) |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| GADGET II, 3 classes | accuracy | 0.97 | 0.950 [0.939–0.958] | 0.85 | 0.792 [0.783–0.798] | 0.33 | 0.328 |
-| | macro F1 | 0.97 | 0.949 [0.939–0.958] | 0.85 | 0.790 [0.782–0.797] | 0.17 | 0.165 |
-| AT-TPC track count | accuracy | 0.74 | 0.739 [0.730–0.747] | 0.58 | 0.588 [0.574–0.601] | 0.48 | 0.482 |
-| | weighted F1 | 0.70 | 0.705 [0.694–0.716] | 0.53 | 0.546 [0.532–0.563] | 0.31 | 0.313 |
+### Notes
 
-The AT-TPC results and the naive baselines match the paper. On GADGET II, both models score a few points below the paper's single split. The paper's ResNet_rand number comes from one random initialization and one 80/20 split of 636 events, and the per-split standard deviation is 0.03–0.05 for that model. The conclusions of the paper hold in every run: pretraining improves the embeddings on both detectors.
-
-### Notes on the metrics and the original code
-
-* In Table 3 of the paper, the GADGET II F1 scores are **macro** averages and the AT-TPC F1 scores are **weighted** averages over classes. `linear_probe.py` reports accuracy, macro F1 and weighted F1 for every model, so both can be compared.
-* The probes in the paper used a single 80/20 split. `linear_probe.py` repeats the split over several seeds (`--seeds`, default 0–4) and reports the mean and standard deviation. With about 500 AT-TPC test events, scores vary by a few percent between splits.
-* This code is a cleaned-up version of the scripts used for the paper. The changes:
-  * Random translation is applied only to training events. The original scripts applied it during validation and testing as well.
-  * Paths and seeds are command-line options.
-  * The weighted random sampler and 15 epochs from Table 2 are the defaults. The original training script used a class-weighted loss (`--class-weights 0.5 1.5 --no-weighted-sampler`) and a configurable number of epochs.
+* Training on a GPU is not bit-for-bit deterministic, so retrained encoders give slightly different numbers from the paper. With the paper's saved checkpoints, this code reproduces the paper's per-fold probe results to within a few events.
+* Input scaling (charge range and the GADGET II drift-axis standardization) is computed only from training and validation events, never from the events a probe is tested on.
 
 ## Acknowledgements
 
-This work was supported by the U.S. Department of Energy, Office of Science, under award No. DE-SC0024587 and the National Science Foundation Office of Advanced Cyberinfrastructure award No. [OAC-2311263](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2311263).
+We thank the GADGET and AT-TPC collaborations for their efforts in collecting and providing the experimental data used in this work.
 
-The code was written by Ryan Krupp and Tyler Wheeler (pretraining, embeddings and probes on GADGET II data) and Michelle P. Kuchera (AT-TPC conversion, probes and figures). It builds on the ALPhA group's FRIBMink sparse-convolution code, written by Liam Sieland, Connor L. Cross, Raghuram Ramanujan, Michelle P. Kuchera, Benjamin Votaw and Ryan Krupp, and on the ResNet example in the [Minkowski Engine](https://github.com/NVIDIA/MinkowskiEngine) (Choy et al., 2019).
+This work was supported by the U.S. Department of Energy, Office of Science, under award No. DE-SC0024587, and by the U.S. National Science Foundation award [OAC-2311263](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2311263). This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Nuclear Physics and used resources of the Facility for Rare Isotope Beams (FRIB) Operations, which is a DOE Office of Science User Facility under Award Number DE-SC0023633.
+
+The five-fold training and probing pipelines were written by Liam Sieland and refined by Michelle P. Kuchera for the paper's final runs. They build on the ALPhA group's FRIBMink sparse-convolution code, written by Liam Sieland, Connor L. Cross, Raghuram Ramanujan, Michelle P. Kuchera, Benjamin Votaw, Andrew J. Jones and Ryan Krupp; on the GADGET II pretraining and embedding code by Ryan Krupp and Tyler Wheeler; and on the ResNet and PointNet examples in the [Minkowski Engine](https://github.com/NVIDIA/MinkowskiEngine) (Choy et al., 2019).
 
 ## Citation
 
 If you use this code, please cite the paper. The code itself is archived on Zenodo as [doi:10.5281/zenodo.23889819](https://doi.org/10.5281/zenodo.23889819).
 
-The paper:
+```bibtex
+@article{wheeler2026architecture,
+  title   = {How Architecture and Training Affect {TPC} Representations Across Experiments},
+  author  = {Wheeler, Tyler and Kuchera, Michelle P. and Ramanujan, Raghuram and Sieland, William and
+             Krupp, Ryan and Ayyad, Yassid and Bazin, Daniel and Cross, Connor L. and Heung, Hoi Yan Ian and
+             Jones, Andrew J. and Mahajan, Ruchi and Ravishankar, Saiprasad and Singh, Pranjal and
+             Votaw, Benjamin and Wrede, Chris},
+  journal = {arXiv preprint arXiv:2608.21756},
+  year    = {2026},
+  doi     = {10.48550/arXiv.2608.21756}
+}
+```
+
+For the NeurIPS 2025 workshop paper (code in release v1.0.0):
 
 ```bibtex
 @inproceedings{wheeler2025sparse,

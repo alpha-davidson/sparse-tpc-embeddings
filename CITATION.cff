@@ -1,8 +1,8 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite the paper below."
-title: "sparse-tpc-embeddings: code for Sparse Methods for Vector Embeddings of TPC Data"
+title: "sparse-tpc-embeddings: sparse ResNet and PointNet-style embeddings of TPC data"
 type: software
-version: 1.0.0
+version: 2.0.0
 doi: 10.5281/zenodo.23889819
 license: MIT
 repository-code: "https://github.com/alpha-davidson/sparse-tpc-embeddings"
@@ -10,6 +10,7 @@ keywords:
   - time projection chamber
   - sparse convolution
   - Minkowski Engine
+  - representation learning
   - embeddings
   - nuclear physics
 authors: &authors
@@ -22,15 +23,18 @@ authors: &authors
   - family-names: Ramanujan
     given-names: Raghuram
     affiliation: Davidson College
+  - family-names: Sieland
+    given-names: William
+    affiliation: Davidson College
   - family-names: Krupp
     given-names: Ryan
     affiliation: Michigan State University
-  - family-names: Wrede
-    given-names: Chris
-    affiliation: Michigan State University
-  - family-names: Ravishankar
-    given-names: Saiprasad
-    affiliation: Michigan State University
+  - family-names: Ayyad
+    given-names: Yassid
+    affiliation: Universidad de Santiago de Compostela
+  - family-names: Bazin
+    given-names: Daniel
+    affiliation: Facility for Rare Isotope Beams, Michigan State University
   - family-names: Cross
     given-names: Connor L.
     affiliation: Davidson College
@@ -40,17 +44,56 @@ authors: &authors
   - family-names: Jones
     given-names: Andrew J.
     affiliation: Davidson College
+  - family-names: Mahajan
+    given-names: Ruchi
+    affiliation: University of Kentucky
+  - family-names: Ravishankar
+    given-names: Saiprasad
+    affiliation: Michigan State University
+  - family-names: Singh
+    given-names: Pranjal
+    affiliation: Facility for Rare Isotope Beams, Michigan State University
   - family-names: Votaw
     given-names: Benjamin
     affiliation: Davidson College
+  - family-names: Wrede
+    given-names: Chris
+    affiliation: Facility for Rare Isotope Beams, Michigan State University
 preferred-citation:
-  type: conference-paper
-  title: "Sparse Methods for Vector Embeddings of TPC Data"
+  type: article
+  title: "How Architecture and Training Affect TPC Representations Across Experiments"
   authors: *authors
-  year: 2025
-  collection-title: "Machine Learning and the Physical Sciences Workshop, NeurIPS 2025"
-  doi: "10.48550/arXiv.2511.11221"
+  year: 2026
+  doi: "10.48550/arXiv.2608.21756"
   identifiers:
     - type: other
-      value: "arXiv:2511.11221"
-  url: "https://arxiv.org/abs/2511.11221"
+      value: "arXiv:2608.21756"
+  url: "https://arxiv.org/abs/2608.21756"
+references:
+  - type: conference-paper
+    title: "Sparse Methods for Vector Embeddings of TPC Data"
+    authors:
+      - family-names: Wheeler
+        given-names: Tyler
+      - family-names: Kuchera
+        given-names: Michelle P.
+      - family-names: Ramanujan
+        given-names: Raghuram
+      - family-names: Krupp
+        given-names: Ryan
+      - family-names: Wrede
+        given-names: Chris
+      - family-names: Ravishankar
+        given-names: Saiprasad
+      - family-names: Cross
+        given-names: Connor L.
+      - family-names: Heung
+        given-names: Hoi Yan Ian
+      - family-names: Jones
+        given-names: Andrew J.
+      - family-names: Votaw
+        given-names: Benjamin
+    year: 2025
+    collection-title: "Machine Learning and the Physical Sciences Workshop, NeurIPS 2025"
+    doi: "10.48550/arXiv.2511.11221"
+    url: "https://arxiv.org/abs/2511.11221"
