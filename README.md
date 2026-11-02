@@ -114,7 +114,7 @@ RESULTS_TBD
 
 ### Notes
 
-* Training on a GPU is not bit-for-bit deterministic, so retrained encoders give slightly different numbers from the paper. With the paper's saved checkpoints, this code reproduces the paper's per-fold probe results to within a few events.
+* Training on a GPU is not bit-for-bit deterministic, so retrained encoders give slightly different numbers from the paper. Random encoders are reproduced exactly from their seeds. With the paper's saved fold-0 checkpoints, this code reproduces the paper's probe results exactly for 15 of 24 encoder–task pairs. The rest differ by at most 0.004 (one or two test events), which we have not traced further.
 * Input scaling (charge range and the GADGET II drift-axis standardization) is computed only from training and validation events, never from the events a probe is tested on.
 
 ## Acknowledgements
