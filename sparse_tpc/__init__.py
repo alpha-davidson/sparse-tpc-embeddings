@@ -1,4 +1,4 @@
-"""Sparse ResNet embeddings of TPC data (Wheeler et al., arXiv:2511.11221)."""
+"""Sparse ResNet and PointNet-style embeddings of TPC data (Wheeler et al., arXiv:2608.21756)."""
 
 import random
 
